@@ -10,3 +10,9 @@ pyinstaller --noconsole --onefile my_program.py
 my_program.py: 대상 파일
 
 실행 후 dist/ 폴더에 .exe 파일이 생깁니다.
+
+--------------------------------------
+
+.ico 아이콘 파일을 준비한 후:
+
+pyinstaller --noconsole --onefile --icon=icon.ico my_program.py
