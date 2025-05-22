@@ -1,9 +1,14 @@
 import tkinter as tk
 import pandas as pd
 import os
-from tkinter import StringVar
+from tkinter import StringVar, font
 from openpyxl import load_workbook, Workbook
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+
+# 윈도우 기본 한글 폰트 설정 (예: 'Malgun Gothic')
+plt.rcParams['font.family'] = 'Malgun Gothic'
+plt.rcParams['axes.unicode_minus'] = False  # 마이너스 기호 깨짐 방지
 
 
 # 경로 설정
@@ -33,68 +38,42 @@ def load_excel_data(file_path):
 
     return df, headers_dict, dropdown_list
 
-# 프로그램 인터페이스
-df, headers_dict, dropdown_list = load_excel_data(input_file)
-
-root = tk.Tk()
-root.geometry("300x200")
-root.title("Excel Data Manipulation")
-# 드롭다운 메뉴 생성
-
-selected_option1 = StringVar(root)
-options1 = dropdown_list
-selected_option1.set(options1[0])  # 기본값 설정
-
-selected_option2 = StringVar(root)
-options2 = dropdown_list
-selected_option2.set(options2[0])  # 기본값 설정
-
-dropdown1 = tk.OptionMenu(root, selected_option1, *options1)
-dropdown1.pack(pady=20)
-
-dropdown2 = tk.OptionMenu(root, selected_option2, *options2)
-dropdown2.pack(pady=20)
-
-
-def convert_to_datetime(df, col):
-    if not pd.api.types.is_datetime64_any_dtype(df[col]):
-        df[col] = pd.to_datetime(df[col])
+def convert_to_datetime(df, headers_dict):
+    col = '일자'
+    if col in headers_dict:
+        idx = headers_dict[col]
+        # 데이터프레임의 해당 열을 datetime으로 변환
+        df.iloc[:, idx] = pd.to_datetime(df.iloc[:, idx], errors='coerce')
     return df
 
-def show_selected(df):
-    selected_value1 = selected_option1.get()
-    selected_value2 = selected_option2.get()
+def create_plot(df, headers_dict):
 
-    col = '일자'
-    if not pd.api.types.is_datetime64_any_dtype(df[col]):
-        df[col] = pd.to_datetime(df[col])
-    # label1.config(text=f"선택한 값: {selected_value1}")
-    # label2.config(text=f"선택한 값: {selected_value2}")
-    print(df.columns)
+    df = convert_to_datetime(df, headers_dict)
 
-    plt.scatter(df[selected_value1].dropna(), df[selected_value2].dropna())
-
-    # Add labels and title
-    plt.xlabel('Height')
-    plt.ylabel('Weight')
-    plt.title('Height vs Weight')
-
-    # create_plot(df)
-
-def create_plot(df):
     selected_value1 = selected_option1.get()
     selected_value2 = selected_option2.get()
 
     # 선택된 값에 따라 데이터 처리
     if selected_value1 in headers_dict and selected_value2 in headers_dict:
-        idx1 = headers_dict[selected_value1]
-        idx2 = headers_dict[selected_value2]
 
-        # 데이터 처리 로직 추가
-        print(f"선택된 인덱스: {idx1}, {idx2}")
-        print(df)
-        df = df.iloc[:, [idx1, idx2]]
+        col_idx1 = headers_dict[selected_value1]
+        col_idx2 = headers_dict[selected_value2]
+        
+        x = df.iloc[:, col_idx1]
+        y = df.iloc[:, col_idx2]
 
+        x = pd.to_numeric(x, errors='coerce')
+        y = pd.to_numeric(y, errors='coerce')
+
+        mask = x.notna() & y.notna()
+        x = x[mask]
+        y = y[mask]
+                        
+        plt.scatter(x, y)
+        plt.xlabel(df.columns[col_idx1])
+        plt.ylabel(df.columns[col_idx2])
+        plt.title("산점도")
+        plt.show()
         # # 결과를 엑셀 파일로 저장
         # output_file = os.path.join(output_folder, OUTPUT_FILENAME)
         # with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
@@ -104,13 +83,38 @@ def create_plot(df):
     else:
         print("잘못된 선택입니다.")
 
-label1 = tk.Label(root, text="버튼을 눌러보세요.")
-label1.pack()
 
-label2 = tk.Label(root, text="버튼을 눌러보세요.")
-label2.pack()
+######################################################################
+######################################################################
+######################################################################
 
-button = tk.Button(root, text="눌러주세요", command=show_selected(df))
-button.pack()
+# 프로그램 인터페이스
+df, headers_dict, dropdown_list = load_excel_data(input_file)
+
+root = tk.Tk()
+custom_font = font.Font(family="Malgun Gothic", size=12)
+root.geometry("300x200")
+root.title("Excel Data Manipulation")
+# 드롭다운 메뉴 생성
+
+selected_option1 = StringVar(root)
+options1 = dropdown_list
+selected_option1.set(options1[1])  # 기본값 설정
+
+selected_option2 = StringVar(root)
+options2 = dropdown_list
+selected_option2.set(options2[2])  # 기본값 설정
+
+dropdown1 = tk.OptionMenu(root, selected_option1, *options1)
+dropdown1.grid(row=0, column=0, columnspan=2, pady=10)
+
+dropdown2 = tk.OptionMenu(root, selected_option2, *options2)
+dropdown2.grid(row=1, column=0, padx=10, pady=5)
+
+label1 = tk.Label(root, text="버튼을 눌러보세요.", font=custom_font)
+label1.grid(row=1, column=1, padx=10, pady=5)
+
+button = tk.Button(root, text="눌러주세요", command=lambda: create_plot(df, headers_dict), font=custom_font)
+button.grid(row=2, column=1, padx=10, pady=5)
 
 root.mainloop()
