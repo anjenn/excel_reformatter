@@ -1,10 +1,12 @@
 import tkinter as tk
 import pandas as pd
 import os
-from tkinter import font, ttk
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 import numpy as np
+import re
+from tkinter import font, ttk
+from datetime import datetime
 
 # 윈도우 기본 한글 폰트 설정 (예: 'Malgun Gothic')
 plt.rcParams['font.family'] = 'Malgun Gothic'
@@ -21,7 +23,7 @@ if not os.path.exists(output_folder):
 
 def get_file_list(directory):
     try:
-        return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+        return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f)) and f.endswith('.xlsx')]
     except FileNotFoundError:
         return []
 
@@ -108,17 +110,16 @@ def show_total_sales(trigger_button, option_var):
     title_label = ttk.Label(root, text="옵션을 선택하세요", font=("Arial", 14))
     title_label.grid(row=0, column=0, columnspan=2, pady=(10, 20))
 
-
-    label1 = ttk.Label(root, text="X축:")
-    label1.grid(row=1, column=0, sticky='e', padx=(10, 5), pady=5)
+    x_label = ttk.Label(root, text="X축:")
+    x_label.grid(row=1, column=0, sticky='e', padx=(10, 5), pady=5)
     options1 = dropdown_list
 
     selected_option1 = tk.StringVar(value=options1[0])
     dropdown1 = ttk.OptionMenu(root, selected_option1, selected_option1.get(), *options1)
     dropdown1.grid(row=1, column=1, sticky='w', padx=(5, 10), pady=5)
 
-    label2 = ttk.Label(root, text="Y축:")
-    label2.grid(row=2, column=0, sticky='e', padx=(10, 5), pady=5)
+    y_label = ttk.Label(root, text="Y축:")
+    y_label.grid(row=2, column=0, sticky='e', padx=(10, 5), pady=5)
     options2 = dropdown_list
 
     selected_option2 = tk.StringVar(value=options2[0])
@@ -131,32 +132,82 @@ def show_total_sales(trigger_button, option_var):
     # 숨김 버튼 제거
     button_monthly.grid_remove()
 
+def show_lt_sales(trigger_button, lt_sales_listbox):
+    selected = [sales_file_list[i] for i in lt_sales_listbox.curselection()]
+    trigger_button.grid_remove()
+
+    # Title
+    title_label = ttk.Label(root, text="옵션을 선택하세요", font=("Arial", 14))
+    title_label.grid(row=0, column=0, columnspan=2, pady=(10, 20))
+
+    df_by_yymm = {}
+
+    for file in selected:
+        yymm = os.path.splitext(file)[0]  # Extract '2401' from '2401.xlsx'
+        path = os.path.join(ROOT_DIR, '매출합계표', file)
+        try:
+            df = pd.read_excel(path)
+            df['YYMM'] = yymm  # Optional: add a column for tracking
+            df_by_yymm[yymm] = df
+        except Exception as e:
+            print(f"Failed to load {file}: {e}")
+
+    dfs = []
+
+    for yymm, df in df_by_yymm.items():
+        try:
+            date = datetime.strptime(yymm, "%y%m")  # Convert '2401' to datetime
+            df = df.copy()
+            df['Month'] = date
+            dfs.append(df)
+        except ValueError:
+            print(f"Skipping invalid YYMM: {yymm}")
+
+    # Step 2: Combine all into one DataFrame
+    combined_df = pd.concat(dfs, ignore_index=True)
+
+    # Step 3: Plot
+    plt.figure(figsize=(10, 6))
+    plt.scatter(combined_df['Month'], combined_df['공급가'], color='blue')
+    plt.title('Sales Volume Over Time')
+    plt.xlabel('Month')
+    plt.ylabel('Sales Volume')
+    plt.grid(True)
+    plt.tight_layout()
+    plt.xticks(rotation=45)
+    plt.show()
 
 ######################################################################
 # 메인 화면
 ######################################################################
 
 # 1. 월별 매출
-file_list = get_file_list(ROOT_DIR)
+sales_file_list = get_file_list(ROOT_DIR)
 
 input_file = os.path.join(ROOT_DIR, "매출합계표")  # 더미 엑셀 파일 
-file_list = [f for f in os.listdir(input_file) if os.path.isfile(os.path.join(input_file, f))]
+sales_file_list = [f for f in os.listdir(input_file) if os.path.isfile(os.path.join(input_file, f))]
 
-file_var = tk.StringVar(value=file_list[0])
-file_dropdown = ttk.OptionMenu(root, file_var, file_var.get(), *file_list)
+file_var = tk.StringVar(value=sales_file_list[0])
+file_dropdown = ttk.OptionMenu(root, file_var, file_var.get(), *sales_file_list)
 file_dropdown.grid(row=1, column=0, sticky='w', padx=(20, 10), pady=20)
 
 button_monthly = ttk.Button(root, text="월별 매출", command=lambda: (show_total_sales(button_monthly, file_var), file_dropdown.grid_remove()), style='TButton')
 button_monthly.grid(row=1, column=1, sticky='e', padx=(10, 20), pady=20)
 
-# 2. 장기 매출 트렌드 # 작업중
-label1 = ttk.Label(root, text="X축:")
-label1.grid(row=1, column=0, sticky='e', padx=(10, 5), pady=5)
-options1 = dropdown_list
+# 2. 장기 매출 트렌드
+lt_sales_listbox = tk.Listbox(root, selectmode='multiple', height=5, exportselection=False)
+pattern = re.compile(r'^\d{4}\.xlsx$')  # e.g., '2401.xlsx', '2512.xlsx'
+valid_files = [f for f in sales_file_list if pattern.match(f)]
+sorted_files = sorted(valid_files, key=lambda f: int(f[:4]))  # f[:4] gets '2401'
 
-selected_option1 = tk.StringVar(value=options1[0])
-dropdown1 = ttk.OptionMenu(root, selected_option1, selected_option1.get(), *options1)
-dropdown1.grid(row=1, column=1, sticky='w', padx=(5, 10), pady=5)
+for option in sorted_files:
+    lt_sales_listbox.insert(tk.END, option)
+
+lt_sales_listbox.grid(row=2, column=0, sticky='w', padx=(10, 5), pady=5)
+
+button_lt_sales = ttk.Button(root, text="장기 매출", command=lambda: (show_lt_sales(button_lt_sales, lt_sales_listbox), lt_sales_listbox.grid_remove()), style='TButton')
+button_lt_sales.grid(row=2, column=1, sticky='e', padx=(10, 20), pady=20)
+
 
 
 root.mainloop()
@@ -164,6 +215,11 @@ root.mainloop()
 # 전월, 당월, 금일매출 비교
 # 연간 트렌드 분석
 # 거래처별 성장률 분석 - 당월매출 / 전월매출 (성장/감소율 파악)
+
+
+
+
+
 # 미수금 누적 거래처 분석 (누적 미수금 상위 거래처 Top 10)
 # 전월대비 판매율이 낮거나 매출이 낮은 거래처 파악
 # 매출 대비 실제 회수된 금액 = 입금액 / 매출액
