@@ -18,6 +18,7 @@ container.place(relx=0.5, rely=0.5, anchor='center')  # Center frame
 
 # --- Define pages (as frames)
 main_page = tk.Frame(container)
+cred_sales_page = tk.Frame(container)
 st_sales_page = tk.Frame(container)
 lt_sales_page = tk.Frame(container)
 

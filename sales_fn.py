@@ -90,7 +90,7 @@ def create_st_plot(df, headers_dict, opt1, opt2):
     else:
         print("잘못된 선택입니다.")
 
-def create_st_bar_chart(df, opt1):
+def create_st_bar_chart(df, opt1): # fix this
     plt.cla()
     df = df.iloc[:-1] # 마지막 행 제거
 
