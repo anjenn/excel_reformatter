@@ -3,7 +3,8 @@ import os
 import matplotlib.font_manager as fm
 import re
 from tkinter import font, ttk
-from sales_fn import show_st_sales, show_lt_sales, show_cred_sales
+from sales_fn import show_st_sales, show_lt_sales
+from cred_sales_fn import show_cred_sales
 from pages import root, show_frame, main_page, st_sales_page, lt_sales_page, cred_sales_page
 
 # 경로 설정
