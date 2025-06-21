@@ -23,17 +23,38 @@ headers_dict = {
     11: '금일미수잔액'
 }
 
+class SalesAnalysisPage:
+    def __init__(self, parent):
+        self.frame = tk.Frame(parent)
+        self.setup_ui()
+        
+    def setup_ui(self):
+        # Create widgets once and reuse
+        pass
+        
+    def clear_previous_widgets(self):
+        # Clear only dynamic content, keep static UI
+        pass
+
+
 def load_sales_data(input_file):
     try:
         df = pd.read_excel(input_file, header=None, engine='openpyxl')  # 엑셀 파일 읽기
+    # except FileNotFoundError:
+    #     print(f"파일을 찾을 수 없습니다: {input_file}")
+    #     exit()
+
+    # dropdown_list = list(headers_dict.keys())
+    # df = df.iloc[5:]
+
+    # return df, dropdown_list
+        return df, headers_dict, dropdown_list
     except FileNotFoundError:
-        print(f"파일을 찾을 수 없습니다: {input_file}")
-        exit()
-
-    dropdown_list = list(headers_dict.keys())
-    df = df.iloc[5:]
-
-    return df, dropdown_list
+        messagebox.showerror("Error", f"파일을 찾을 수 없습니다: {input_file}")
+        return None, None, None
+    except Exception as e:
+        messagebox.showerror("Error", f"파일 로딩 중 오류: {str(e)}")
+        return None, None, None
 
 # 필터링 함수
 def get_filtered_df(df, selected_client, only_high_debt):

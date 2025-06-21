@@ -3,13 +3,26 @@ import os
 import matplotlib.font_manager as fm
 import re
 from tkinter import font, ttk
-from sales_fn import show_st_sales, show_lt_sales
-from cred_sales_fn import show_cred_sales
-from pages import root, show_frame, main_page, st_sales_page, lt_sales_page, cred_sales_page
+from project.views.sales_fn import show_st_sales, show_lt_sales
+from project.views.cred_sales_fn import show_cred_sales
+from project.pages import root, show_frame, main_page, st_sales_page, lt_sales_page, cred_sales_page
 
 # 경로 설정
 ROOT_DIR = os.getcwd()  # 현재 작업 디렉토리
 output_folder = os.path.join(ROOT_DIR, "output")  # 아웃풋 폴더 경로
+
+# class DataManager:
+#     def __init__(self):
+#         self._cache = {}
+        
+#     def get_sales_data(self, filepath):
+#         if filepath in self._cache:
+#             return self._cache[filepath]
+            
+#         data = self._load_and_validate(filepath)
+#         self._cache[filepath] = data
+#         return data
+
 
 # 아웃풋 폴더가 없으면 생성
 if not os.path.exists(output_folder):
