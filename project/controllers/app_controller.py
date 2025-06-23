@@ -5,8 +5,6 @@ from config.settings import Config
 from models.data_loader import DataLoader
 from models.sales_analyzer import SalesAnalyzer, CreditAnalyzer
 from views.main_page import MainPage
-from views.sales_page import SalesPage
-from views.credit_page import CreditPage
 
 class SalesAnalysisApp:
     def __init__(self):
@@ -25,16 +23,7 @@ class SalesAnalysisApp:
         """Set up the user interface"""
         self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(fill='both', expand=True)
-        
-        # Create pages
-        self.main_page = MainPage(self.notebook, self)
-        self.sales_page = SalesPage(self.notebook, self)
-        self.credit_page = CreditPage(self.notebook, self)
-        
-        # Add to notebook
-        self.notebook.add(self.main_page.frame, text="메인")
-        self.notebook.add(self.sales_page.frame, text="매출분석")
-        self.notebook.add(self.credit_page.frame, text="외상분석")
+        MainPage(self.notebook, self)
     
     def configure_window(self):
         """Configure main window"""

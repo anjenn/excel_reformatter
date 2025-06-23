@@ -5,7 +5,7 @@ import os
 import tkinter as tk
 from tkinter import ttk
 from datetime import datetime
-from project.pages import show_frame, main_page
+from project.old_files.pages import show_frame, main_page
 
 # 윈도우 기본 한글 폰트 설정 (예: 'Malgun Gothic')
 plt.rcParams['font.family'] = 'Malgun Gothic'

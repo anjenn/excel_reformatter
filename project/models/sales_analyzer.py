@@ -31,6 +31,9 @@ class SalesAnalyzer:
                 trend_line = np.poly1d(z)
                 return x_clean, y_clean, trend_line(x_clean)
             
+            x_label = df.columns[col_idx1]
+            y_label = df.columns[col_idx2]
+            
         return np.array([]), np.array([]), np.array([])
     
     def analyze_product_sales(self, df: pd.DataFrame, value_col: str) -> pd.Series:
@@ -42,6 +45,13 @@ class SalesAnalyzer:
         df_clean = self.data_loader.clean_data(df, [value_col])
         df_clean = df_clean.dropna(subset=[Config.PRODUCT_COLUMN, value_col])
         
+        # df = df.copy()
+        # df.loc[:, PRODUCT] = df[PRODUCT].astype(str).str.strip()
+        # df.loc[:, PRODUCT] = df[PRODUCT].str.replace(r'\s+', ' ', regex=True)
+        # df.loc[:, PRODUCT] = df[PRODUCT].replace(['', 'nan', 'NaN', 'None'], np.nan)
+        # df.loc[:, selected1] = pd.to_numeric(df[selected1], errors='coerce')
+        # df = df.dropna(subset=[PRODUCT, selected1])  # Remove missing values
+
         # Group by product and sum
         grouped = df_clean.groupby(Config.PRODUCT_COLUMN)[value_col].sum()
         return grouped.sort_values(ascending=False)

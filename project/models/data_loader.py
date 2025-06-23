@@ -9,7 +9,7 @@ class DataLoader:
     def __init__(self):
         self._cache = {}
         
-    def load_sales_data(self, file_path: str) -> Tuple[Optional[pd.DataFrame], Dict, List]:
+    def get_monthly_sales_data(self, file_path: str) -> Tuple[Optional[pd.DataFrame], Dict, List]:
         """Load sales data from Excel file with caching"""
         try:
             # Check cache first
@@ -33,7 +33,7 @@ class DataLoader:
             print(f"Error loading sales data: {str(e)}")
             return None, {}, []
     
-    def load_credit_data(self, file_path: str) -> Tuple[Optional[pd.DataFrame], List]:
+    def get_credit_sales_data(self, file_path: str) -> Tuple[Optional[pd.DataFrame], List]:
         """Load credit sales data from Excel file"""
         try:
             # Check cache first
@@ -63,7 +63,8 @@ class DataLoader:
             print(f"Error loading credit data: {str(e)}")
             return None, []
     
-    def load_multiple_sales_files(self, file_paths: List[str]) -> pd.DataFrame:
+    def get_longterm_sales_data(self, file_paths: List[str]) -> pd.DataFrame:
+        print("Loading long-term sales data...")
         """Load and combine multiple sales files for long-term analysis"""
         dfs = []
         
