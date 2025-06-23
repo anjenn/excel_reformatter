@@ -58,12 +58,12 @@ class Config:
                 os.makedirs(directory)
                 print(f"Created directory: {directory}")
 
-    @classmethod
-    def get_file_list(cls, directory):
-        """Get list of Excel files in directory"""
-        try:
-            return [f for f in os.listdir(directory) 
-                   if os.path.isfile(os.path.join(directory, f)) and f.endswith('.xlsx')]
-        except FileNotFoundError:
-            print(f"Directory not found: {directory}")
-            return []
+    # @classmethod
+    # def get_file_list(cls, directory):
+    #     """Get list of Excel files in directory"""
+    #     try:
+    #         return [f for f in os.listdir(directory) 
+    #                if os.path.isfile(os.path.join(directory, f)) and f.endswith('.xlsx')]
+    #     except FileNotFoundError:
+    #         print(f"Directory not found: {directory}")
+    #         return []
