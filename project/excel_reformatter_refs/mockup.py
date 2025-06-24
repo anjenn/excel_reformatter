@@ -82,7 +82,7 @@ class SalesAnalysisDashboard:
         # Analysis options frame (initially hidden)
         self.monthly_options_frame = ttk.LabelFrame(monthly_frame, text="분석 옵션")
         self.monthly_options_frame.pack(fill='x', padx=20, pady=10)
-        self.monthly_options_frame.pack_forget()  # Hide initially
+        # self.monthly_options_frame.pack_forget()  # Hide initially
         
         # Plot area
         self.monthly_plot_frame = ttk.Frame(monthly_frame)

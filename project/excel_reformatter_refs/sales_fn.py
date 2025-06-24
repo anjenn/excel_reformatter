@@ -10,7 +10,7 @@ from pages import show_frame, main_page
 # 윈도우 기본 한글 폰트 설정 (예: 'Malgun Gothic')
 plt.rcParams['font.family'] = 'Malgun Gothic'
 plt.rcParams['axes.unicode_minus'] = False  # 마이너스 기호 깨짐 방지
-ROOT_DIR = os.getcwd()  # 현재 작업 디렉토리
+ROOT_DIR = r'c:\Users\anjen\Desktop\project\anjenn\excel_reformatter\project'  # 프로젝트 루트 디렉토리
 PRODUCT = '상품명/규격/브랜드/원산지'
 
 

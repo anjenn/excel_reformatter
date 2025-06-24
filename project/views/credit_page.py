@@ -9,9 +9,9 @@ class CreditPage:
         self.parent = parent
         self.controller = controller
         self.frame = ttk.Frame(parent)
-        self.setup_listbox_widget()
+        self.setup_filelist_widget()
     
-    def setup_listbox_widget(self):
+    def setup_filelist_widget(self):
         """Set up credit sales analysis section"""
         # Title
         title = ttk.Label(self.frame, text="외상 매출 분석", 

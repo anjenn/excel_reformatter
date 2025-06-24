@@ -8,7 +8,8 @@ from cred_sales_fn import show_cred_sales
 from pages import root, show_frame, main_page, st_sales_page, lt_sales_page, cred_sales_page
 
 # 경로 설정
-ROOT_DIR = os.getcwd()  # 현재 작업 디렉토리
+# ROOT_DIR = os.getcwd() # 현재 작업 디렉토리
+ROOT_DIR = r'c:\Users\anjen\Desktop\project\anjenn\excel_reformatter\project'  # 프로젝트 루트 디렉토리
 output_folder = os.path.join(ROOT_DIR, "output")  # 아웃풋 폴더 경로
 
 # 아웃풋 폴더가 없으면 생성

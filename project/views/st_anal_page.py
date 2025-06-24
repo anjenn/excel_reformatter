@@ -2,7 +2,8 @@
 import tkinter as tk
 from tkinter import ttk
 from config.settings import Config
-from utils.file_utils import FileUtils  # Use relative import for sibling package
+from utils.file_utils import FileUtils
+from utils.plot_utils import PlotUtils
 
 class StAnalPage:
     def __init__(self, parent, controller):
@@ -16,16 +17,16 @@ class StAnalPage:
         # self.data = data  # Assuming data is passed as a DataFrame or similar structure
         # self.headers_dict = data[1]
         # self.dropdown_list = data[2]
-
-        self.setup_listbox_widget()
-    
-    def setup_listbox_widget(self):
-        """Set up monthly sales analysis section"""
+        
         # Title
         title = ttk.Label(self.frame, text="월별 매출 분석", 
                          font=(Config.FONT_FAMILY, Config.FONT_SIZE_TITLE, 'bold'))
         title.pack(pady=10)
 
+        self.setup_filelist_widget()
+    
+    def setup_filelist_widget(self):
+        """Set up monthly sales analysis section"""
         # File selection frame
         file_frame = ttk.LabelFrame(self.frame, text="파일 선택")
         file_frame.pack(fill='x', padx=20, pady=10)
@@ -44,7 +45,7 @@ class StAnalPage:
         sales_file_combo.pack(side='left', padx=5)
         
         analyze_btn = ttk.Button(file_select_frame, text="파일 선택", 
-                               command=self.setup_options_widget)
+                               command=self.setup_options_widget(self.file_var.get()))
         analyze_btn.pack(side='right', padx=5)
 
         # Info
@@ -52,58 +53,53 @@ class StAnalPage:
                               font=('Malgun Gothic', 8))
         info_label.pack(pady=5)
 
-    def setup_options_widget(self):
+    def setup_options_widget(self, selected_file):
         # Option selection frame
-        option_frame = ttk.LabelFrame(self.frame, text="옵션 선택")
-        option_frame.pack(fill='x', padx=20, pady=10)
+        self.option_frame = ttk.LabelFrame(self.frame, text="옵션 선택")
+        self.option_frame.pack(fill='x', padx=20, pady=10)
 
-        # File selection
-        file_select_frame = ttk.Frame(option_frame)
-        file_select_frame.pack(fill='x', padx=10, pady=10)
+        # Clear previous options
+        for widget in self.option_frame.winfo_children():
+            widget.destroy()
 
-        # self.monthly_options_frame = ttk.LabelFrame(self.monthly_frame, text="분석 옵션")
-        # self.monthly_options_frame.pack(fill='x', padx=20, pady=10)
-        # self.monthly_options_frame.pack_forget()  # Hide initially
-    
-        # Title
-        title_label = ttk.Label(self.frame, text="옵션을 선택하세요", font=("Arial", 14))
-        title_label.grid(row=0, column=0, columnspan=2, pady=(10, 20))
+        # Option selection
+        option_select_frame = ttk.Frame(self.option_frame)
+        option_select_frame.pack(fill='x', padx=10, pady=10)
 
-#         x_label = ttk.Label(self.frame, text="X축:")
-#         x_label.grid(row=1, column=0, sticky='e', padx=(10, 5), pady=5)
-#         options1 = self.dropdown_list
-#         print(f"Dropdown options: {options1}")  # Debugging line
+        df, dropdown_list = FileUtils.load_sales_data(selected_file)
+
+        options1 = dropdown_list
+        options2 = dropdown_list
         
-#         # selected_option1 = tk.StringVar(value=options1[0])
-#         # dropdown1 = ttk.OptionMenu(self.frame, selected_option1, selected_option1.get(), *options1)
-#         # dropdown1.grid(row=1, column=1, sticky='w', padx=(5, 10), pady=5)
+        ttk.Label(option_select_frame, text="X축:").grid(row=0, column=0, sticky='e', padx=5, pady=5)
+        self.selected_option1 = tk.StringVar(value=options1[0])
+        dropdown1 = ttk.Combobox(option_select_frame, textvariable=self.selected_option1,
+                                   values=options1, state='readonly')
+        dropdown1.grid(row=0, column=1, sticky='w', padx=5, pady=5)
 
-#         # y_label = ttk.Label(self.frame, text="Y축:")
-#         # y_label.grid(row=2, column=0, sticky='e', padx=(10, 5), pady=5)
-#         # options2 = self.dropdown_list
+        ttk.Label(option_select_frame, text="Y축:").grid(row=1, column=0, sticky='e', padx=5, pady=5)
+        self.selected_option2 = tk.StringVar(value=options2[0])
+        dropdown2 = ttk.Combobox(option_select_frame, textvariable=self.selected_option2,
+                                   values=options2, state='readonly')
+        dropdown2.grid(row=1, column=1, sticky='w', padx=5, pady=5)
 
-#         # selected_option2 = tk.StringVar(value=options2[0])
-#         # dropdown2 = ttk.OptionMenu(self.frame, selected_option2, selected_option2.get(), *options2)
-#         # dropdown2.grid(row=2, column=1, sticky='w', padx=(5, 10), pady=5)
-
-#         # st_submit_button = tk.Button(self.frame, text="Submit", command=lambda: create_st_plot(df, headers_dict, selected_option1, selected_option2), font=("Arial", 12))
-#         # st_submit_button.grid(row=3, column=0, sticky='e', padx=(10, 5), pady=5)
-
-#         # st_submit_button = tk.Button(self.frame, text="품목별", command=lambda: create_st_bar_chart(df, selected_option1), font=("Arial", 12))
-#         # st_submit_button.grid(row=3, column=1, sticky='e', padx=(10, 5), pady=5)
-
-#         # back_button = tk.Button(self.frame, text="Back", command=lambda: show_frame(main_page), font=("Arial", 12))
-#         # back_button.grid(row=3, column=2, sticky='w', padx=(5, 10), pady=5)
+        # Buttons
+        btn_frame = ttk.Frame(option_select_frame)
+        btn_frame.grid(row=2, column=0, columnspan=2, pady=10)
+        
+        ttk.Button(btn_frame, text="상관관계 분석", 
+                  command=self.plot_correlation).pack(side='left', padx=5)
+        ttk.Button(btn_frame, text="품목별 매출", 
+                  command=self.plot_product_sales).pack(side='left', padx=5)
+        
+        # Create initial plot
+        # self.plot_correlation()
     
     def setup_anal_widget(self):
         # Plot area
         self.monthly_plot_frame = ttk.Frame(monthly_frame)
         self.monthly_plot_frame.pack(fill='both', expand=True, padx=20, pady=10)
     
-#     def setup_controls(self):
-#         """Set up analysis controls"""
-#         pass
-
 #     def update_plot(self):
 #         """Update the plot with current data"""
 #         pass

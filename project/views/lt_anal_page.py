@@ -8,9 +8,9 @@ class LtAnalPage:
         self.parent = parent
         self.controller = controller
         self.frame = ttk.Frame(parent)
-        self.setup_listbox_widget()
+        self.setup_filelist_widget()
 
-    def setup_listbox_widget(self):
+    def setup_filelist_widget(self):
         """Set up long-term trend analysis section"""
         # Title
         title = ttk.Label(self.frame, text="장기 트렌드 분석", 

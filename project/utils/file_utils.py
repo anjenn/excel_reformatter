@@ -3,6 +3,7 @@ import os
 from typing import List
 from config.settings import Config
 import re
+import pandas as pd
 
 class FileUtils:
     @staticmethod
@@ -14,7 +15,18 @@ class FileUtils:
         except FileNotFoundError:
             print(f"Directory not found: {directory}")
             return []
-        
+    
+    @staticmethod
+    def load_sales_data(input_file):
+        directory = os.path.join(Config.SALES_DIR, input_file)
+        try:
+            df = pd.read_excel(directory, engine='openpyxl')  # 엑셀 파일 읽기
+        except FileNotFoundError:
+            print(f"파일을 찾을 수 없습니다: {directory}")
+            exit()
+        dropdown_list = list(Config.SALES_HEADERS.keys())
+        return df, dropdown_list
+
     @staticmethod
     def get_excel_files(directory: str) -> List[str]:
         sales_file_list = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
