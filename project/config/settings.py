@@ -13,8 +13,8 @@ class Config:
     FONT_SIZE_SMALL = 8
 
     # Window settings
-    WINDOW_WIDTH = 800
-    WINDOW_HEIGHT = 600
+    WINDOW_WIDTH = 1000
+    WINDOW_HEIGHT = 700
     WINDOW_TITLE = "Sales Analysis Dashboard"
     
     # Headers
@@ -57,13 +57,3 @@ class Config:
             if not os.path.exists(directory):
                 os.makedirs(directory)
                 print(f"Created directory: {directory}")
-
-    # @classmethod
-    # def get_file_list(cls, directory):
-    #     """Get list of Excel files in directory"""
-    #     try:
-    #         return [f for f in os.listdir(directory) 
-    #                if os.path.isfile(os.path.join(directory, f)) and f.endswith('.xlsx')]
-    #     except FileNotFoundError:
-    #         print(f"Directory not found: {directory}")
-    #         return []

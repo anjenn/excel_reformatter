@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Sales Analysis Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            color: #666;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        /* Cards */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* File Upload */
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .file-upload input[type=file] {
+            position: absolute;
+            opacity: 0;
+            left: -9999px;
+        }
+
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            background: #f9f9f9;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload:hover .file-upload-label {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f1f3f4;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e8eaed;
+        }
+
+        /* Analysis Options */
+        .analysis-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .option-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        select {
+            padding: 0.75rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            background: white;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .chart-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #f1f3f4;
+        }
+
+        .chart-tab {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .chart-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .chart-content {
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Filters */
+        .filters {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: end;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 1rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Hidden content */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span style="font-size: 2rem;">📊</span>
+                <h1>Sales Dashboard</h1>
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active" data-section="overview">
+                            <span class="nav-icon">🏠</span>
+                            Overview
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-section="monthly">
+                            <span class="nav-icon">📈</span>
+                            월별 매출 분석
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-section="longterm">
+                            <span class="nav-icon">📊</span>
+                            장기 트렌드 분석
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-section="credit">
+                            <span class="nav-icon">💳</span>
+                            외상 매출 분석
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-section="settings">
+                            <span class="nav-icon">⚙️</span>
+                            Settings
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Overview Section -->
+            <section id="overview" class="content-section active">
+                <div class="header">
+                    <h2>📊 Sales Analysis Dashboard</h2>
+                    <p>매출 분석 대시보드 - 실시간 매출 데이터 분석 및 시각화</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">₩12.5M</div>
+                        <div class="stat-label">이번 달 매출</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">+15.3%</div>
+                        <div class="stat-label">전월 대비 증가</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">₩2.1M</div>
+                        <div class="stat-label">미수잔액</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">16.8%</div>
+                        <div class="stat-label">평균 미수율</div>
+                    </div>
+                </div>
+
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Quick Analysis</h3>
+                            <span class="card-icon">⚡</span>
+                        </div>
+                        <p>파일을 업로드하여 즉시 분석을 시작하세요.</p>
+                        <div class="file-upload" style="margin-top: 1rem;">
+                            <input type="file" id="quickFile" accept=".xlsx,.xls">
+                            <label for="quickFile" class="file-upload-label">
+                                📁 Excel 파일 선택
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Recent Files</h3>
+                            <span class="card-icon">📋</span>
+                        </div>
+                        <div style="space-y: 0.5rem;">
+                            <div style="padding: 0.5rem; background: #f9f9f9; border-radius: 5px; margin-bottom: 0.5rem;">2405.xlsx</div>
+                            <div style="padding: 0.5rem; background: #f9f9f9; border-radius: 5px; margin-bottom: 0.5rem;">2404.xlsx</div>
+                            <div style="padding: 0.5rem; background: #f9f9f9; border-radius: 5px;">2403.xlsx</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Performance Metrics</h3>
+                            <span class="card-icon">📊</span>
+                        </div>
+                        <canvas id="overviewChart" width="300" height="200"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Monthly Analysis Section -->
+            <section id="monthly" class="content-section">
+                <div class="header">
+                    <h2>📈 월별 매출 분석</h2>
+                    <p>월별 매출 데이터를 상세 분석하고 시각화합니다</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">파일 선택 및 업로드</h3>
+                        <span class="card-icon">📁</span>
+                    </div>
+                    
+                    <div class="file-upload">
+                        <input type="file" id="monthlyFile" accept=".xlsx,.xls">
+                        <label for="monthlyFile" class="file-upload-label">
+                            📊 매출 Excel 파일 선택
+                        </label>
+                    </div>
+                    
+                    <div class="analysis-options" style="margin-top: 2rem;">
+                        <div class="option-group">
+                            <label class="option-label">X축 선택</label>
+                            <select id="xAxis">
+                                <option value="product">상품명</option>
+                                <option value="weight">중량</option>
+                                <option value="cost">원가</option>
+                                <option value="price">매가</option>
+                            </select>
+                        </div>
+                        <div class="option-group">
+                            <label class="option-label">Y축 선택</label>
+                            <select id="yAxis">
+                                <option value="totalSales">매가총금액</option>
+                                <option value="profit">매익액</option>
+                                <option value="profitRate">매익율</option>
+                                <option value="weight">중량</option>
+                            </select>
+                        </div>
+                        <div class="option-group">
+                            <button class="btn btn-primary" onclick="analyzeMonthly()">
+                                <span class="loading" id="monthlyLoading" style="display: none;"></span>
+                                분석 시작
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-tabs">
+                        <button class="chart-tab active" onclick="showChart('correlation')">상관관계 분석</button>
+                        <button class="chart-tab" onclick="showChart('products')">품목별 매출</button>
+                        <button class="chart-tab" onclick="showChart('trends')">매출 트렌드</button>
+                    </div>
+                    <div class="chart-content">
+                        <canvas id="monthlyChart" width="800" height="400"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Long-term Analysis Section -->
+            <section id="longterm" class="content-section">
+                <div class="header">
+                    <h2>📊 장기 트렌드 분석</h2>
+                    <p>여러 월의 데이터를 비교하여 장기적인 트렌드를 분석합니다</p>
+                </div>
+
+                <div class="filters">
+                    <h3 style="margin-bottom: 1rem;">분석 설정</h3>
+                    <div class="filters-grid">
+                        <div class="option-group">
+                            <label class="option-label">분석 지표</label>
+                            <select id="ltMetric">
+                                <option value="totalSales">매가총금액</option>
+                                <option value="profit">매익액</option>
+                                <option value="weight">중량</option>
+                                <option value="totalCost">원가총금액</option>
+                            </select>
+                        </div>
+                        <div class="option-group">
+                            <label class="option-label">기간 선택</label>
+                            <select id="ltPeriod">
+                                <option value="3months">최근 3개월</option>
+                                <option value="6months">최근 6개월</option>
+                                <option value="12months">최근 12개월</option>
+                                <option value="custom">사용자 정의</option>
+                            </select>
+                        </div>
+                        <div class="option-group">
+                            <button class="btn btn-primary" onclick="analyzeLongTerm()">
+                                트렌드 분석
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cards-grid">
+                    <div class="card">
+                        <h3 class="card-title">파일 목록</h3>
+                        <div id="fileList" style="max-height: 300px; overflow-y: auto;">
+                            <div style="padding: 0.5rem; margin: 0.5rem 0; background: #f0f8ff; border-radius: 5px; cursor: pointer;" onclick="toggleFile(this)">
+                                <input type="checkbox" checked> 2405.xlsx
+                            </div>
+                            <div style="padding: 0.5rem; margin: 0.5rem 0; background: #f0f8ff; border-radius: 5px; cursor: pointer;" onclick="toggleFile(this)">
+                                <input type="checkbox" checked> 2404.xlsx
+                            </div>
+                            <div style="padding: 0.5rem; margin: 0.5rem 0; background: #f0f8ff; border-radius: 5px; cursor: pointer;" onclick="toggleFile(this)">
+                                <input type="checkbox" checked> 2403.xlsx
+                            </div>
+                            <div style="padding: 0.5rem; margin: 0.5rem 0; background: #f0f8ff; border-radius: 5px; cursor: pointer;" onclick="toggleFile(this)">
+                                <input type="checkbox"> 2402.xlsx
+                            </div>
+                            <div style="padding: 0.5rem; margin: 0.5rem 0; background: #f0f8ff; border-radius: 5px; cursor: pointer;" onclick="toggleFile(this)">
+                                <input type="checkbox"> 2401.xlsx
+                            </div>
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            <button class="btn btn-secondary" onclick="selectAllFiles()">전체 선택</button>
+                            <button class="btn btn-secondary" onclick="clearAllFiles()">선택 해제</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">트렌드 요약</h3>
+                        <div class="stats-grid" style="grid-template-columns: 1fr; gap: 1rem;">
+                            <div style="text-align: center; padding: 1rem; background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%); color: white; border-radius: 10px;">
+                                <div style="font-size: 1.5rem; font-weight: bold;">+12.5%</div>
+                                <div style="font-size: 0.9rem;">월평균 성장률</div>
+                            </div>
+                            <div style="text-align: center; padding: 1rem; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 10px;">
+                                <div style="font-size: 1.5rem; font-weight: bold;">₩45.2M</div>
+                                <div style="font-size: 0.9rem;">예상 다음 달 매출</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="longtermChart" width="800" height="400"></canvas>
+                </div>
+            </section>
+
+            <!-- Credit Analysis Section -->
+            <section id="credit" class="content-section">
+                <div class="header">
+                    <h2>💳 외상 매출 분석</h2>
+                    <p>외상 매출 현황과 미수잔액을 분석하여 리스크를 관리합니다</p>
+                </div>
+
+                <div class="filters">
+                    <h3 style="margin-bottom: 1rem;">필터 설정</h3>
+                    <div class="filters-grid">
+                        <div class="option-group">
+                            <label class="option-label">거래처</label>
+                            <select id="clientFilter">
+                                <option value="all">전체</option>
+                                <option value="clientA">거래처A</option>
+                                <option value="clientB">거래처B</option>
+                                <option value="clientC">거래처C</option>
+                            </select>
+                        </div>
+                        <div class="option-group">
+                            <label class="option-label">기간</label>
+                            <select id="periodFilter">
+                                <option value="current">당월</option>
+                                <option value="previous">전월</option>
+                                <option value="quarter">최근 3개월</option>
+                            </select>
+                        </div>
+                        <div class="option-group">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1.5rem;">
+                                <input type="checkbox" id="highDebtFilter">
+                                미수잔액 100만원 이상만
+                            </label>
+                        </div>
+                        <div class="option-group">
+                            <button class="btn btn-primary" onclick="analyzeCreditSales()">
+                                외상 매출 분석
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-grid" style="margin-bottom: 2rem;">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);">
+                        <div class="stat-value">₩3.2M</div>
+                        <div class="stat-label">총 미수잔액</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);">
+                        <div class="stat-value">18.5%</div>
+                        <div class="stat-label">평균 미수율</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #48dbfb 0%, #0abde3 100%);">
+                        <div class="stat-value">25</div>
+                        <div class="stat-label">외상 거래처 수</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #1dd1a1 0%, #10ac84 100%);">
+                        <div class="stat-value">₩1.8M</div>
+                        <div class="stat-label">당월 회수액</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-tabs">
+                        <button class="chart-tab active" onclick="showCreditChart('salesVsDebt')">매출 vs 미수잔액</button>
+                        <button class="chart-tab" onclick="showCreditChart('debtRate')">미수율 분석</button>
+                        <button class="chart-tab" onclick="showCreditChart('monthlyComparison')">월별 비교</button>
+                        <button class="chart-tab" onclick="showCreditChart('riskAnalysis')">리스크 분석</button>
+                    </div>
+                    <div class="chart-content">
+                        <canvas id="creditChart" width="800" height="400"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings" class="content-section">
+                <div class="header">
+                    <h2>⚙️ Settings</h2>
+                    <p>대시보드 설정 및 환경설정</p>
+                </div>
+
+                <div class="cards-grid">
+                    <div class="card">
+                        <h3 class="card-title">데이터 설정</h3>
+                        <div class="option-group" style="margin-bottom: 1rem;">
+                            <label class="option-label">기본 화폐 단위</label>
+                            <select>
+                                <option value="krw">원 (KRW)</option>
+                                <option value="usd">달러 (USD)</option>
+                                <option value="eur">유로 (EUR)</option>
+                            </select>
+                        </div>
+                        <div class="option-group">
+                            <label class="option-label">소수점 표시</label>
+                            <select>
+                                <option value="0">정수</option>
+                                <option value="1">소수점 1자리</option>
+                                <option value="2">소수점 2자리</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">알림 설정</h3>
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" checked>
+                                미수잔액 임계값 알림
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" checked>
+                                매출 목표 달성 알림
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox">
+                                일일 리포트 이메일
+                            </label>
+                        

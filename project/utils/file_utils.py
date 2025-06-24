@@ -7,11 +7,14 @@ import re
 class FileUtils:
     @staticmethod
     def get_file_list(directory):
+        """Get list of Excel files in directory"""
         try:
-            return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f)) and f.endswith('.xlsx')]
+            return [f for f in os.listdir(directory) 
+                   if os.path.isfile(os.path.join(directory, f)) and f.endswith('.xlsx')]
         except FileNotFoundError:
+            print(f"Directory not found: {directory}")
             return []
-
+        
     @staticmethod
     def get_excel_files(directory: str) -> List[str]:
         sales_file_list = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]

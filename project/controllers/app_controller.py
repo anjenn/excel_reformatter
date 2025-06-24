@@ -10,8 +10,12 @@ class SalesAnalysisApp:
     def __init__(self):
         self.root = tk.Tk()
         self.setup_models()
-        self.setup_ui()
         self.configure_window()
+
+        # Configure style
+        self.style = ttk.Style()
+        self.style.theme_use('clam')
+        self.setup_ui()
     
     def setup_models(self):
         """Initialize data models"""
@@ -21,9 +25,11 @@ class SalesAnalysisApp:
     
     def setup_ui(self):
         """Set up the user interface"""
-        self.notebook = ttk.Notebook(self.root)
-        self.notebook.pack(fill='both', expand=True)
-        MainPage(self.notebook, self)
+        main_container = ttk.Frame(self.root)
+        main_container.pack(fill='both', expand=True, padx=10, pady=10)
+        
+        # Initialize main page
+        self.main_page = MainPage(main_container, self)
     
     def configure_window(self):
         """Configure main window"""
