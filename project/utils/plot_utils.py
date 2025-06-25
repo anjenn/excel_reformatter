@@ -1,41 +1,8 @@
 # utils/plot_utils.py
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import pandas as pd
-import numpy as np
-from config.settings import Config
 
 class PlotUtils:
-    @staticmethod
-    def create_correlation_plot(x_data, y_data):
-        plt.scatter(x_data, y_data, label='데이터')
-
-        plt.plot(x_data, trend_line(x_data), 'r-', label='추세선')
-        
-        plt.xlabel(x_label)
-        plt.ylabel(y_label)
-        plt.title(f'{x_label} vs {y_label}')
-
-        plt.grid(True)
-        plt.legend()
-        plt.show()
-    
-    @staticmethod
-    def create_product_sales_plot(ax, product_data, title='Total Sales per Product'):
-        product_data.plot(kind='bar', color='skyblue')
-        plt.title(title)
-        plt.ylabel('Sales')
-        plt.xlabel('Product')
-        plt.grid(True)
-        plt.tight_layout()
-        plt.show()
-    
-    @staticmethod
-    def create_trend_plot(ax, x_data, y_data, trend_line, title):
-        """Create trend line plot"""
-        pass
-    
-
     # Credit analysis plots
     @staticmethod
     def plot_sales_vs_debt(data, selected_period):

@@ -92,14 +92,17 @@ class StAnalPage:
         btn_frame.grid(row=2, column=0, columnspan=2, pady=10)
 
         ttk.Button(btn_frame, text="상관관계 분석",
-                  command=lambda:self.update_correlation_plot()).pack(side='left', padx=5)
+                  command=lambda:self.setup_correlation_plot()).pack(side='left', padx=5)
         ttk.Button(btn_frame, text="품목별 매출", 
-                  command=lambda:self.update_product_sales_plot()).pack(side='left', padx=5)
+                  command=lambda:self.setup_product_sales_plot()).pack(side='left', padx=5)
     
-    def setup_anal_widget(self):
+    def setup_correlation_plot(self):
         # Clear previous plot frame if it exists
         if hasattr(self, 'monthly_plot_frame'):
             self.monthly_plot_frame.destroy()
+        if hasattr(self, 'monthly_plot_canvas'):
+            self.monthly_plot_canvas.get_tk_widget().destroy()
+            plt.close(self.monthly_plot_figure)
 
         self.monthly_plot_frame = ttk.Frame(self.frame)
         self.monthly_plot_frame.pack(fill='both', expand=True, padx=20, pady=10)
@@ -120,7 +123,7 @@ class StAnalPage:
             y_data = y[x.notna() & y.notna()]
 
             # Create plot
-            fig, ax = plt.subplots(figsize=(8, 5))
+            self.monthly_plot_figure, ax = plt.subplots(figsize=(8, 5))
             ax.scatter(x_data, y_data, alpha=0.7, color='skyblue')
             
             # Add trend line
@@ -135,18 +138,67 @@ class StAnalPage:
             ax.legend()
             
             # Embed plot
-            canvas = FigureCanvasTkAgg(fig, master=self.monthly_plot_frame)
-            canvas.draw()
-            canvas.get_tk_widget().pack(fill='both', expand=True)
+            self.monthly_plot_canvas = FigureCanvasTkAgg(self.monthly_plot_figure, master=self.monthly_plot_frame)
+            self.monthly_plot_canvas.draw()
+            self.monthly_plot_canvas.get_tk_widget().pack(fill='both', expand=True)
     
-    def update_correlation_plot(self):
-        self.setup_anal_widget()
-        # PlotUtils.create_correlation_plot()
+    def setup_product_sales_plot(self):
+        # Clear previous plot frame if it exists
+        if hasattr(self, 'monthly_plot_frame'):
+            self.monthly_plot_frame.destroy()
+        if hasattr(self, 'monthly_plot_canvas'):
+            self.monthly_plot_canvas.get_tk_widget().destroy()
+            plt.close(self.monthly_plot_figure)
 
-    def update_product_sales_plot(self):
-        self.setup_anal_widget()
-        # PlotUtils.create_product_sales_plot(df, selected_option1)
+        self.monthly_plot_frame = ttk.Frame(self.frame)
+        self.monthly_plot_frame.pack(fill='both', expand=True, padx=20, pady=10)
+        PRODUCT = Config.PRODUCT_COLUMN
 
+        cleaned_df = self.df.iloc[:-1] # 마지막 행 제거
+        selected1 = self.selected_option1.get()
+        # TO-DO: add a note that only selected1 is used for product sales plot
+        headers_dict = Config.SALES_HEADERS
+
+        if selected1 in headers_dict:
+            col_idx1 = headers_dict[selected1]
+            df = cleaned_df.copy()
+            df.loc[:, PRODUCT] = df[PRODUCT].astype(str).str.strip()
+            df.loc[:, PRODUCT] = df[PRODUCT].str.replace(r'\s+', ' ', regex=True)
+            df.loc[:, PRODUCT] = df[PRODUCT].replace(['', 'nan', 'NaN', 'None'], np.nan)
+            df.loc[:, selected1] = pd.to_numeric(df[selected1], errors='coerce')
+            df = df.dropna(subset=[PRODUCT, selected1])  # Remove missing values
+
+            grouped = df.groupby(PRODUCT)[selected1].sum().sort_values(ascending=False)
+
+            # Create plot
+            self.monthly_plot_figure, ax = plt.subplots(figsize=(8, 5))
+            products = grouped.index.tolist()
+            sales = grouped.values.tolist()
+
+            self.monthly_plot_figure, ax = plt.subplots(figsize=(8, 5))
+            colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7']  # Extend or adjust as needed
+
+            bars = ax.bar(products, sales, color=colors[:len(products)])
+
+            ax.set_xlabel('제품')
+            ax.set_ylabel(f'{selected1} 합계')
+            ax.set_title(f'제품별 {selected1} 총합')
+            ax.grid(axis='y', alpha=0.3)
+            ax.tick_params(axis='x', rotation=45)
+
+            # Add value labels on bars
+            for bar in bars:
+                height = bar.get_height()
+                ax.text(bar.get_x() + bar.get_width()/2., height,
+                    f'{height:,.0f}',
+                    ha='center', va='bottom')
+            
+            plt.tight_layout()
+
+            # Embed plot
+            self.monthly_plot_canvas = FigureCanvasTkAgg(self.monthly_plot_figure, master=self.monthly_plot_frame)
+            self.monthly_plot_canvas.draw()
+            self.monthly_plot_canvas.get_tk_widget().pack(fill='both', expand=True)
     
     # # def on_file_select(self, event, listbox, button): #on_selection_change
     # def on_file_select(self, listbox, button): #on_selection_change
@@ -154,7 +206,3 @@ class StAnalPage:
     #         button.state(['!disabled'])  # Enable
     #     else:
     #         button.state(['disabled'])   # Disable again if deselected
-    
-#     def on_parameter_change(self):
-#         """Handle parameter changes"""
-#         pass
