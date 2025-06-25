@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sales Analysis Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS for layout -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Malgun Gothic', sans-serif;
+    }
+    .title {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #666;
+    }
+    .dashboard-tab {
+      padding-top: 20px;
+    }
+    .form-label {
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container mt-4">
+  <div class="text-center">
+    <div class="title">Sales Analysis Dashboard</div>
+    <div class="subtitle">매출 분석 대시보드</div>
+  </div>
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mt-4" id="dashboardTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="monthly-tab" data-bs-toggle="tab" data-bs-target="#monthly" type="button" role="tab">월별 매출 분석</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="longterm-tab" data-bs-toggle="tab" data-bs-target="#longterm" type="button" role="tab">장기 트렌드 분석</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="credit-tab" data-bs-toggle="tab" data-bs-target="#credit" type="button" role="tab">외상 매출 분석</button>
+    </li>
+  </ul>
+
+  <div class="tab-content dashboard-tab" id="dashboardTabsContent">
+    <!-- Monthly Sales Tab -->
+    <div class="tab-pane fade show active" id="monthly" role="tabpanel">
+      <h5 class="mt-3">월별 매출 파일 선택</h5>
+      <div class="mb-3">
+        <label for="salesFile" class="form-label">매출 파일:</label>
+        <select id="salesFile" class="form-select">
+          <option selected>2504.xlsx</option>
+          <option>2505.xlsx</option>
+        </select>
+      </div>
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label">X축:</label>
+          <select class="form-select">
+            <option>재고판매중량</option>
+            <option>매가</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Y축:</label>
+          <select class="form-select">
+            <option>매익액</option>
+            <option>원가</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <button class="btn btn-primary me-2">상관관계 분석</button>
+        <button class="btn btn-secondary">품목별 매출</button>
+      </div>
+    </div>
+
+    <!-- Long-Term Trend Tab -->
+    <div class="tab-pane fade" id="longterm" role="tabpanel">
+      <h5 class="mt-3">장기 트렌드 분석</h5>
+      <div class="mb-3">
+        <label for="trendFiles" class="form-label">파일 선택:</label>
+        <select multiple class="form-select" id="trendFiles">
+          <option>2301.xlsx</option>
+          <option>2302.xlsx</option>
+          <option>2303.xlsx</option>
+        </select>
+        <small class="text-muted">YYMM.xlsx 형식으로 파일명을 저장해주세요</small>
+      </div>
+      <div>
+        <label class="form-label">Y축:</label>
+        <select class="form-select mb-2">
+          <option>매가공급가</option>
+          <option>매익율(%)</option>
+        </select>
+      </div>
+      <button class="btn btn-success">트렌드 분석</button>
+    </div>
+
+    <!-- Credit Sales Tab -->
+    <div class="tab-pane fade" id="credit" role="tabpanel">
+      <h5 class="mt-3">외상 매출 분석</h5>
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label class="form-label">거래처:</label>
+          <select class="form-select">
+            <option>전체</option>
+            <option>고객사 A</option>
+            <option>고객사 B</option>
+          </select>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">기간:</label>
+          <select class="form-select">
+            <option>당월</option>
+            <option>전월</option>
+          </select>
+        </div>
+        <div class="col-md-4 mb-3 d-flex align-items-end">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="debtFilter">
+            <label class="form-check-label" for="debtFilter">
+              미수잔액 100만원 이상
+            </label>
+          </div>
+        </div>
+      </div>
+      <div>
+        <button class="btn btn-primary">그래프 보기</button>
+      </div>
+      <!-- Placeholder for charts -->
+      <div class="mt-4">
+        <div class="card p-4 text-center text-muted">
+          (📊 분석 그래프가 여기에 표시됩니다)
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

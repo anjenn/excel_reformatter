@@ -7,7 +7,7 @@ from config.settings import Config
 
 class PlotUtils:
     @staticmethod
-    def create_correlation_plot(ax, x_data, y_data, trend_line, x_label, y_label):
+    def create_correlation_plot(x_data, y_data):
         plt.scatter(x_data, y_data, label='데이터')
 
         plt.plot(x_data, trend_line(x_data), 'r-', label='추세선')

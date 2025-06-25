@@ -1,9 +1,16 @@
 # views/sales_page.py
 import tkinter as tk
+import matplotlib.pyplot as plt
 from tkinter import ttk
 from config.settings import Config
 from utils.file_utils import FileUtils
 from utils.plot_utils import PlotUtils
+import pandas as pd
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import numpy as np
+
+plt.rcParams['font.family'] = 'Malgun Gothic'
+plt.rcParams['axes.unicode_minus'] = False  # 마이너스 기호 깨짐 방지
 
 class StAnalPage:
     def __init__(self, parent, controller):
@@ -12,11 +19,6 @@ class StAnalPage:
         self.controller = controller
         self.frame = ttk.Frame(parent)
         self.frame.pack(fill='both', expand=True)
-
-        # Initialize variables
-        # self.data = data  # Assuming data is passed as a DataFrame or similar structure
-        # self.headers_dict = data[1]
-        # self.dropdown_list = data[2]
         
         # Title
         title = ttk.Label(self.frame, text="월별 매출 분석", 
@@ -37,15 +39,15 @@ class StAnalPage:
         
         ttk.Label(file_select_frame, text="매출 파일:").pack(side='left', padx=5)
 
-        sales_file_list = FileUtils.get_file_list(Config.SALES_DIR) # get file list from Config.SALES_DIR
+        sales_file_list = FileUtils.get_file_list(Config.SALES_DIR)
         self.file_var = tk.StringVar(value=sales_file_list[0])
         
         sales_file_combo = ttk.Combobox(file_select_frame, textvariable=self.file_var,
                                  values=sales_file_list, state='readonly', width=15)
         sales_file_combo.pack(side='left', padx=5)
         
-        analyze_btn = ttk.Button(file_select_frame, text="파일 선택", 
-                               command=self.setup_options_widget(self.file_var.get()))
+        analyze_btn = ttk.Button(file_select_frame, text="파일 선택 test", 
+                               command=lambda:self.setup_options_widget(self.file_var.get()))
         analyze_btn.pack(side='right', padx=5)
 
         # Info
@@ -54,22 +56,24 @@ class StAnalPage:
         info_label.pack(pady=5)
 
     def setup_options_widget(self, selected_file):
+        # Clear previous frames if they exist
+        if hasattr(self, 'option_frame'):
+            self.option_frame.destroy()
+        if hasattr(self, 'monthly_plot_frame'):
+            self.monthly_plot_frame.destroy()
+
         # Option selection frame
         self.option_frame = ttk.LabelFrame(self.frame, text="옵션 선택")
         self.option_frame.pack(fill='x', padx=20, pady=10)
-
-        # Clear previous options
-        for widget in self.option_frame.winfo_children():
-            widget.destroy()
 
         # Option selection
         option_select_frame = ttk.Frame(self.option_frame)
         option_select_frame.pack(fill='x', padx=10, pady=10)
 
-        df, dropdown_list = FileUtils.load_sales_data(selected_file)
+        self.df, self.dropdown_list = FileUtils.load_sales_data(selected_file)
 
-        options1 = dropdown_list
-        options2 = dropdown_list
+        options1 = self.dropdown_list
+        options2 = self.dropdown_list
         
         ttk.Label(option_select_frame, text="X축:").grid(row=0, column=0, sticky='e', padx=5, pady=5)
         self.selected_option1 = tk.StringVar(value=options1[0])
@@ -86,29 +90,70 @@ class StAnalPage:
         # Buttons
         btn_frame = ttk.Frame(option_select_frame)
         btn_frame.grid(row=2, column=0, columnspan=2, pady=10)
-        
-        ttk.Button(btn_frame, text="상관관계 분석", 
-                  command=self.plot_correlation).pack(side='left', padx=5)
+
+        ttk.Button(btn_frame, text="상관관계 분석",
+                  command=lambda:self.update_correlation_plot()).pack(side='left', padx=5)
         ttk.Button(btn_frame, text="품목별 매출", 
-                  command=self.plot_product_sales).pack(side='left', padx=5)
-        
-        # Create initial plot
-        # self.plot_correlation()
+                  command=lambda:self.update_product_sales_plot()).pack(side='left', padx=5)
     
     def setup_anal_widget(self):
-        # Plot area
-        self.monthly_plot_frame = ttk.Frame(monthly_frame)
+        # Clear previous plot frame if it exists
+        if hasattr(self, 'monthly_plot_frame'):
+            self.monthly_plot_frame.destroy()
+
+        self.monthly_plot_frame = ttk.Frame(self.frame)
         self.monthly_plot_frame.pack(fill='both', expand=True, padx=20, pady=10)
+
+        cleaned_df = self.df.iloc[:-1] # 마지막 행 제거
+        selected1 = self.selected_option1.get()
+        selected2 = self.selected_option2.get()
+        headers_dict = Config.SALES_HEADERS
+
+        if selected1 in headers_dict and selected2 in headers_dict:
+            col_idx1 = headers_dict[selected1]
+            col_idx2 = headers_dict[selected2]
+
+            x = pd.to_numeric(cleaned_df.iloc[:, col_idx1], errors='coerce')
+            y = pd.to_numeric(cleaned_df.iloc[:, col_idx2], errors='coerce')
+
+            x_data = x[x.notna() & y.notna()] # NaN 값 제거 mask 적용
+            y_data = y[x.notna() & y.notna()]
+
+            # Create plot
+            fig, ax = plt.subplots(figsize=(8, 5))
+            ax.scatter(x_data, y_data, alpha=0.7, color='skyblue')
+            
+            # Add trend line
+            z = np.polyfit(x_data, y_data, 1)
+            p = np.poly1d(z)
+            ax.plot(x_data, p(x_data), "r--", alpha=0.8, label='추세선')
+            
+            ax.set_xlabel(f'{selected1}')
+            ax.set_ylabel(f'{selected2}')
+            ax.set_title(f'{selected1} vs {selected2} 상관관계')
+            ax.grid(True, alpha=0.3)
+            ax.legend()
+            
+            # Embed plot
+            canvas = FigureCanvasTkAgg(fig, master=self.monthly_plot_frame)
+            canvas.draw()
+            canvas.get_tk_widget().pack(fill='both', expand=True)
     
-#     def update_plot(self):
-#         """Update the plot with current data"""
-#         pass
+    def update_correlation_plot(self):
+        self.setup_anal_widget()
+        # PlotUtils.create_correlation_plot()
+
+    def update_product_sales_plot(self):
+        self.setup_anal_widget()
+        # PlotUtils.create_product_sales_plot(df, selected_option1)
+
     
-#     def on_file_select(self, event, listbox, button): #on_selection_change
-#         if listbox.curselection():
-#             button.state(['!disabled'])  # Enable
-#         else:
-#             button.state(['disabled'])   # Disable again if deselected
+    # # def on_file_select(self, event, listbox, button): #on_selection_change
+    # def on_file_select(self, listbox, button): #on_selection_change
+    #     if listbox.curselection():
+    #         button.state(['!disabled'])  # Enable
+    #     else:
+    #         button.state(['disabled'])   # Disable again if deselected
     
 #     def on_parameter_change(self):
 #         """Handle parameter changes"""
