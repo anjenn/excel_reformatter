@@ -1,13 +1,12 @@
-# views/sales_page.py
+# views/st_anal_page.py
 import tkinter as tk
 import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
 from tkinter import ttk
 from config.settings import Config
 from utils.file_utils import FileUtils
-from utils.plot_utils import PlotUtils
-import pandas as pd
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import numpy as np
 
 plt.rcParams['font.family'] = 'Malgun Gothic'
 plt.rcParams['axes.unicode_minus'] = False  # 마이너스 기호 깨짐 방지
@@ -34,19 +33,19 @@ class StAnalPage:
         file_frame.pack(fill='x', padx=20, pady=10)
 
         # File selection
-        file_select_frame = ttk.Frame(file_frame)
-        file_select_frame.pack(fill='x', padx=10, pady=10)
+        combobox_frame = ttk.Frame(file_frame)
+        combobox_frame.pack(fill='x', padx=10, pady=10)
         
-        ttk.Label(file_select_frame, text="매출 파일:").pack(side='left', padx=5)
+        ttk.Label(combobox_frame, text="매출 파일:").pack(side='left', padx=5)
 
         sales_file_list = FileUtils.get_file_list(Config.SALES_DIR)
         self.file_var = tk.StringVar(value=sales_file_list[0])
         
-        sales_file_combo = ttk.Combobox(file_select_frame, textvariable=self.file_var,
+        sales_file_combo = ttk.Combobox(combobox_frame, textvariable=self.file_var,
                                  values=sales_file_list, state='readonly', width=15)
         sales_file_combo.pack(side='left', padx=5)
         
-        analyze_btn = ttk.Button(file_select_frame, text="파일 선택 test", 
+        analyze_btn = ttk.Button(combobox_frame, text="파일 선택 test", 
                                command=lambda:self.setup_options_widget(self.file_var.get()))
         analyze_btn.pack(side='right', padx=5)
 
@@ -160,7 +159,6 @@ class StAnalPage:
         headers_dict = Config.SALES_HEADERS
 
         if selected1 in headers_dict:
-            col_idx1 = headers_dict[selected1]
             df = cleaned_df.copy()
             df.loc[:, PRODUCT] = df[PRODUCT].astype(str).str.strip()
             df.loc[:, PRODUCT] = df[PRODUCT].str.replace(r'\s+', ' ', regex=True)
@@ -199,10 +197,3 @@ class StAnalPage:
             self.monthly_plot_canvas = FigureCanvasTkAgg(self.monthly_plot_figure, master=self.monthly_plot_frame)
             self.monthly_plot_canvas.draw()
             self.monthly_plot_canvas.get_tk_widget().pack(fill='both', expand=True)
-    
-    # # def on_file_select(self, event, listbox, button): #on_selection_change
-    # def on_file_select(self, listbox, button): #on_selection_change
-    #     if listbox.curselection():
-    #         button.state(['!disabled'])  # Enable
-    #     else:
-    #         button.state(['disabled'])   # Disable again if deselected
