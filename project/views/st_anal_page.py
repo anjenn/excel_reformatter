@@ -39,14 +39,14 @@ class StAnalPage:
         ttk.Label(combobox_frame, text="매출 파일:").pack(side='left', padx=5)
 
         sales_file_list = FileUtils.get_file_list(Config.SALES_DIR)
-        self.file_var = tk.StringVar(value=sales_file_list[0])
+        file_var = tk.StringVar(value=sales_file_list[0])
         
-        sales_file_combo = ttk.Combobox(combobox_frame, textvariable=self.file_var,
+        sales_file_combo = ttk.Combobox(combobox_frame, textvariable=file_var,
                                  values=sales_file_list, state='readonly', width=15)
         sales_file_combo.pack(side='left', padx=5)
         
-        analyze_btn = ttk.Button(combobox_frame, text="파일 선택 test", 
-                               command=lambda:self.setup_options_widget(self.file_var.get()))
+        analyze_btn = ttk.Button(combobox_frame, text="파일 선택", 
+                               command=lambda:self.setup_options_widget(file_var.get()))
         analyze_btn.pack(side='right', padx=5)
 
         # Info
@@ -140,6 +140,8 @@ class StAnalPage:
             self.monthly_plot_canvas = FigureCanvasTkAgg(self.monthly_plot_figure, master=self.monthly_plot_frame)
             self.monthly_plot_canvas.draw()
             self.monthly_plot_canvas.get_tk_widget().pack(fill='both', expand=True)
+            # Bind double-click to show popup
+            self.monthly_plot_canvas.get_tk_widget().bind("<Double-Button-1>", lambda e: plt.show())
     
     def setup_product_sales_plot(self):
         # Clear previous plot frame if it exists
@@ -197,3 +199,5 @@ class StAnalPage:
             self.monthly_plot_canvas = FigureCanvasTkAgg(self.monthly_plot_figure, master=self.monthly_plot_frame)
             self.monthly_plot_canvas.draw()
             self.monthly_plot_canvas.get_tk_widget().pack(fill='both', expand=True)
+            # Bind double-click to show popup
+            self.monthly_plot_canvas.get_tk_widget().bind("<Double-Button-1>", lambda e: plt.show())

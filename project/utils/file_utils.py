@@ -1,9 +1,9 @@
 # utils/file_utils.py
 import os
-from typing import List
-from config.settings import Config
 import re
 import pandas as pd
+from typing import List
+from config.settings import Config
 
 class FileUtils:
     @staticmethod
@@ -15,7 +15,7 @@ class FileUtils:
         except FileNotFoundError:
             print(f"Directory not found: {directory}")
             return []
-    
+        
     @staticmethod
     def load_sales_data(input_file):
         directory = os.path.join(Config.SALES_DIR, input_file)
@@ -28,10 +28,9 @@ class FileUtils:
         return df, dropdown_list
 
     @staticmethod
-    def get_excel_files(directory: str) -> List[str]:
-        sales_file_list = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+    def get_valid_file_list(file_list: List[str]) -> List[str]:
         pattern = re.compile(r'^\d{4}\.xlsx$')  # e.g., '2401.xlsx', '2512.xlsx'
-        valid_files = [f for f in sales_file_list if pattern.match(f)]
+        valid_files = [f for f in file_list if pattern.match(f)]
         sorted_files = sorted(valid_files, key=lambda f: int(f[:4]))  # f[:4] gets '2401'
 
         # TO-DO 'YYMM.xlsx 형식으로 파일명 저장 해주세요' 에러 메시지 프린트
@@ -39,15 +38,6 @@ class FileUtils:
         # get file lists
 
         return sorted_files
-    
-    # @staticmethod
-    # def get_longterm_files(directory: str) -> List[str]:
-    #     """Get list of long-term trend files"""
-    #     lt_file_list = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
-    #     pattern = re.compile(r'^\d{4}\.xlsx$')
-    #     valid_files = [f for f in lt_file_list if pattern.match(f)]
-    #     sorted_files = sorted(valid_files, key=lambda f: int(f[:4]))  # f[:4] gets '2401'
-    #     return sorted_files
     
     @staticmethod
     def validate_file_path(file_path: str) -> bool:
