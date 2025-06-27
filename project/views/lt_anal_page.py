@@ -22,7 +22,7 @@ class LtAnalPage:
         self.frame.pack(fill='both', expand=True)
         
         # Title
-        title = ttk.Label(self.frame, text="장기 트렌드 분석", 
+        title = ttk.Label(self.frame, text="장기 매출 트렌드 분석", 
                          font=(Config.FONT_FAMILY, Config.FONT_SIZE_TITLE, 'bold'))
         title.pack(pady=10)
 
@@ -33,7 +33,7 @@ class LtAnalPage:
         # File selection frame
         file_frame = ttk.LabelFrame(self.frame, text="파일 선택 (다중 선택 가능)")
         file_frame.pack(fill='both', expand=True, padx=20, pady=10)
-        # TO-DO: review expand=True, as it may not be needed
+        # Expand true for listbox only (needed for both filefame and listbox_frame)
 
         # File selection
         listbox_frame = ttk.Frame(file_frame)
@@ -56,7 +56,7 @@ class LtAnalPage:
         btn_frame = ttk.Frame(file_frame)
         btn_frame.pack(fill='x', padx=10, pady=5)
         
-        self.lt_analyze_btn = ttk.Button(btn_frame, text="장기 트렌드 분석", 
+        self.lt_analyze_btn = ttk.Button(btn_frame, text="트렌드 분석", 
                                          command=lambda:self.setup_options_widget(),
                                          state='disabled')
         self.lt_analyze_btn.pack(side='right', padx=5)
@@ -79,9 +79,8 @@ class LtAnalPage:
 
         # # Plot area # Consider having it here (not done this way in st_anal_page.py)
         # self.lt_plot_frame = ttk.Frame(longterm_frame)
-        # self.lt_plot_frame.pack(fill='both', expand=True, padx=20, pady=10)
+        # self.lt_plot_frame.pack(fill='both', padx=20, pady=10)
         
-# TO-DO: update from this point
     def setup_options_widget(self):
         # Clear previous frames if they exist
         if hasattr(self, 'option_frame'):
@@ -124,7 +123,7 @@ class LtAnalPage:
             plt.close(self.longterm_plot_figure)
 
         self.longterm_plot_frame = ttk.Frame(self.frame)
-        self.longterm_plot_frame.pack(fill='both', expand=True, padx=20, pady=10)
+        self.longterm_plot_frame.pack(fill='both', padx=20, pady=10)
 
         df_by_yymm = {}
         dfs = []

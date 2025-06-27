@@ -104,7 +104,7 @@ class StAnalPage:
             plt.close(self.monthly_plot_figure)
 
         self.monthly_plot_frame = ttk.Frame(self.frame)
-        self.monthly_plot_frame.pack(fill='both', expand=True, padx=20, pady=10)
+        self.monthly_plot_frame.pack(fill='both',  padx=20, pady=10)
 
         cleaned_df = self.df.iloc[:-1] # 마지막 행 제거
         selected1 = self.selected_option1.get()
@@ -152,7 +152,7 @@ class StAnalPage:
             plt.close(self.monthly_plot_figure)
 
         self.monthly_plot_frame = ttk.Frame(self.frame)
-        self.monthly_plot_frame.pack(fill='both', expand=True, padx=20, pady=10)
+        self.monthly_plot_frame.pack(fill='both', padx=20, pady=10)
         PRODUCT = Config.PRODUCT_COLUMN
 
         cleaned_df = self.df.iloc[:-1] # 마지막 행 제거

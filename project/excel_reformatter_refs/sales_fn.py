@@ -15,6 +15,8 @@ PRODUCT = '상품명/규격/브랜드/원산지'
 
 
 def load_sales_data(input_file):
+    print(f"Loading sales data from: {input_file}")
+
     try:
         df = pd.read_excel(input_file, engine='openpyxl')  # 엑셀 파일 읽기
     except FileNotFoundError:

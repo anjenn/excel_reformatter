@@ -8,7 +8,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 plt.rcParams['font.family'] = 'Malgun Gothic'
 plt.rcParams['axes.unicode_minus'] = False  # 마이너스 기호 깨짐 방지
-ROOT_DIR = os.getcwd()  # 현재 작업 디렉토리
+ROOT_DIR = r'c:\Users\anjen\Desktop\project\anjenn\excel_reformatter\project'  # 프로젝트 루트 디렉토리
 
 headers_dict = {
     0: '거래처명',
@@ -45,10 +45,11 @@ def get_filtered_df(df, selected_client, only_high_debt):
     return filtered
 
 # 그래프 그리기
-def draw_chart(tab, plot_func):
+def draw_chart(df, tab, plot_func):
     for widget in tab.winfo_children():
         widget.destroy()
-    fig = plot_func(get_filtered_df())
+    # fig = plot_func(get_filtered_df())
+    fig = plot_func(df)
     canvas = FigureCanvasTkAgg(fig, master=tab)
     canvas.draw()
     canvas.get_tk_widget().pack(fill="both", expand=True)
@@ -95,13 +96,26 @@ def plot_monthly_sales(data):
     plt.tight_layout()
     return fig
 
-def update_tabs(tab1, tab2, tab3):
-    draw_chart(tab1, plot_sales_vs_debt)
-    draw_chart(tab2, plot_misu_rate)
-    draw_chart(tab3, plot_monthly_sales)
+def update_tabs(tab1, tab2, tab3, df):
+    # draw_chart(df, tab1, plot_sales_vs_debt)
+    draw_chart(df, tab2, plot_misu_rate)
+    draw_chart(df, tab3, plot_monthly_sales)
 
 def show_cred_sales(cred_sales_page, cs_listbox, cred_sales_file_list):
-    input_file = './외상매출/2504.xlsx'
+    input_file = r'c:\Users\anjen\Desktop\project\anjenn\excel_reformatter\project\외상매출\2504.xlsx'
+    # input_file = './외상매출/2504.xlsx'
+    headers_dict = {
+        0: '거래처명',
+        1: '전일잔액',
+        2: '매출액',
+        4: '입금내역',
+        5: '금일잔액',
+        6: '미수율',
+        8: '전월매출',
+        9: '판매율',
+        10: '당월매출',
+        11: '금일미수잔액'
+    }
 
     df, dropdown_list = load_sales_data(input_file)
     df.columns = [headers_dict.get(i, f'Unnamed: {i}') for i in range(df.shape[1])]
@@ -151,8 +165,8 @@ def show_cred_sales(cred_sales_page, cs_listbox, cred_sales_file_list):
     if selected_files:
         input_file = os.path.join(ROOT_DIR, "외상매출", selected_files[0])
         # global df, headers_dict, dropdown_list
-        df, headers_dict, dropdown_list = load_sales_data(input_file)
+        df, dropdown_list = load_sales_data(input_file)
         df.columns = [headers_dict.get(i, f'Unnamed: {i}') for i in range(df.shape[1])]
-        update_tabs(tab1, tab2, tab3)
+        update_tabs(tab1, tab2, tab3, df)
     else:
         print("선택된 파일이 없습니다.")
